@@ -1,14 +1,39 @@
 {
   "app": "loan-web",
   "version": 1,
-  "exportedAt": "2026-07-15T13:04:17.734Z",
+  "exportedAt": "2026-07-15T13:39:36.612Z",
   "books": [
     {
       "id": "B_1784120588747_897",
-      "name": "我的账本",
+      "name": "æçè´¦æ¬",
       "createdAt": 1784120588747
+    },
+    {
+      "id": "B_1784121882302_367",
+      "name": "我的账本",
+      "createdAt": 1784121882302
     }
   ],
-  "activeBookId": "B_1784120588747_897",
-  "loans": []
+  "activeBookId": "B_1784121882302_367",
+  "loans": [
+    {
+      "id": "L_1784122046060_222",
+      "bookId": "B_1784121882302_367",
+      "direction": "loan",
+      "name": "海淀房贷",
+      "contact": "",
+      "principal": 111471.76,
+      "currency": "¥",
+      "rate": 4.09,
+      "interestType": "单利",
+      "planMethod": "equalInstallment",
+      "planFreq": "monthly",
+      "startDate": "2026-07-19",
+      "dueDate": "2027-10-19",
+      "note": "",
+      "settled": false,
+      "createdAt": 1784122046060,
+      "repayments": []
+    }
+  ]
 }
