@@ -179,8 +179,8 @@ function renderIncome(){
     h+='<div class="card-title" style="font-size:13px;margin-top:8px;margin-bottom:4px">'+t+' ('+items.length+')</div>'
     items.sort(function(a,b){return(a.dueDate||'').localeCompare(b.dueDate||'')})
     items.forEach(function(l){
-      var arrived=l.dueDate<=todayStr()
-      h+='<div class="income-row"><div class="lr-left"><span class="tag tag-income">'+esc(t)+'</span><span class="lr-name">'+esc(l.name||'未命名')+'</span></div><div class="lr-right"><span class="lr-amount">'+money(l.principal)+'</span><span class="lr-status '+(arrived?'tag tag-paid':'tag tag-active')+'">'+(arrived?'已到账':'待入账')+'</span></div></div>'
+      var arrived=l.arrived!==undefined?l.arrived:(l.dueDate<=todayStr())
+      h+='<div class="income-row" onclick="toggleIncomeArrived(\''+l.id+'\')"><div class="lr-left"><span class="tag tag-income">'+esc(t)+'</span><span class="lr-name">'+esc(l.name||'未命名')+'</span></div><div class="lr-right"><span class="lr-amount">'+money(l.principal)+'</span><span class="lr-status '+(arrived?'tag tag-paid':'tag tag-active')+'">'+(arrived?'已到账':'待入账')+'</span></div></div>'
     })
   })
   if(all.length===0)h+='<div class="empty">暂无收入记录</div>'
@@ -188,6 +188,10 @@ function renderIncome(){
   return h
 }
 function bindIncome(){}
+function toggleIncomeArrived(id){
+  var l=getLoanById(id)
+  if(l){l.arrived=l.arrived!==undefined?!l.arrived:(l.dueDate<=todayStr()?false:true);upsertLoan(l);render()}
+}
 
 /* ---- 3. 编辑（借贷/收入共用） ---- */
 function renderLoanEdit(){
@@ -205,6 +209,8 @@ function renderLoanEdit(){
   h+='<div class="form-row2"><div class="form-group"><label>借款日期 *</label><input class="f-input" id="f_startDate" value="'+esc(f.startDate)+'" type="date"/></div><div class="form-group"><label>约定还款日 *</label><input class="f-input" id="f_dueDate" value="'+esc(f.dueDate)+'" type="date"/></div></div>'
   h+='<div class="form-group"><label>还款方式</label><select class="f-input" id="f_planMethod" onchange="togglePlanFreq()"><option value="lump" '+(f.planMethod==='lump'?'selected':'')+'>一次性还本付息</option><option value="interestFirst" '+(f.planMethod==='interestFirst'?'selected':'')+'>先息后本</option><option value="equalInstallment" '+(f.planMethod==='equalInstallment'?'selected':'')+'>等额本息</option><option value="equalPrincipal" '+(f.planMethod==='equalPrincipal'?'selected':'')+'>等额本金</option></select></div>'
   h+='<div class="form-group" id="freqGroup" style="display:'+(f.planMethod&&f.planMethod!=='lump'?'block':'none')+'"><label>还款频率</label><select class="f-input" id="f_planFreq"><option value="weekly" '+(f.planFreq==='weekly'?'selected':'')+'>按周</option><option value="monthly" '+(f.planFreq==='monthly'?'selected':'')+'>按月</option><option value="quarterly" '+(f.planFreq==='quarterly'?'selected':'')+'>按季</option><option value="yearly" '+(f.planFreq==='yearly'?'selected':'')+'>按年</option></select></div>'
+  h+='<div class="form-group"><label>备注</label><textarea class="f-input" id="f_note_loan" rows="2" placeholder="选填">'+esc(f.note||'')+'</textarea></div>'
+  h+='<div class="form-group"><label class="chk-label"><input type="checkbox" id="f_settled" '+(f.settled?'checked':'')+'> 已结清（标记为已还清，不再显示逾期）</label></div>'
   h+='</div><div id="inf" style="display:'+(dir==='income'?'block':'none')+'">'
   h+='<div class="form-group"><label>收入名称 *</label><input class="f-input" id="f_name" value="'+esc(f.name)+'" placeholder="如：工资"/></div>'
   h+='<div class="form-group"><label>收入类型</label><select class="f-input" id="f_incomeType"><option value="工资" '+(f.incomeType==='工资'?'selected':'')+'>工资</option><option value="投资" '+(f.incomeType==='投资'?'selected':'')+'>投资</option><option value="其他" '+(f.incomeType==='其他'?'selected':'')+'>其他</option></select></div>'
@@ -217,21 +223,24 @@ function renderLoanEdit(){
 function togglePlanFreq(){var v=document.getElementById('f_planMethod')?.value;if(v)document.getElementById('freqGroup').style.display=(v==='lump'?'none':'block')}
 function toggleDirFields(){var d=window._efD||'lend';var lf=document.getElementById('lf');if(lf)lf.style.display=(d==='income'?'none':'block');var inf=document.getElementById('inf');if(inf)inf.style.display=(d==='income'?'block':'none')}
 function saveLoan(){
-  window._efD=window._efD||'lend';var d={direction:window._efD,name:document.getElementById('f_name').value.trim(),contact:'',principal:parseFloat(document.getElementById('f_principal').value)||0,currency:'¥',rate:0,interestType:'不计息',planMethod:'lump',planFreq:'monthly',startDate:'',dueDate:'',note:'',incomeType:'工资'}
+  window._efD=window._efD||'lend';var d={direction:window._efD,name:document.getElementById('f_name').value.trim(),contact:'',principal:parseFloat(document.getElementById('f_principal').value)||0,currency:'¥',rate:0,interestType:'不计息',planMethod:'lump',planFreq:'monthly',startDate:'',dueDate:'',note:'',incomeType:'工资',settled:false,arrived:false}
   if(d.direction==='income'){
     d.dueDate=document.getElementById('f_dueDate').value
     d.incomeType=document.getElementById('f_incomeType').value
     d.note=document.getElementById('f_note').value.trim()
+    d.arrived=document.getElementById('f_arrived').checked
   }else{
     d.contact=document.getElementById('f_contact').value.trim();d.currency=document.getElementById('f_currency').value.trim()||'¥'
     d.rate=parseFloat(document.getElementById('f_rate').value)||0;d.interestType=document.getElementById('f_interestType').value
     d.startDate=document.getElementById('f_startDate').value;d.dueDate=document.getElementById('f_dueDate').value
     d.planMethod=document.getElementById('f_planMethod').value;d.planFreq=document.getElementById('f_planFreq').value
+    d.note=document.getElementById('f_note_loan').value.trim()
+    d.settled=document.getElementById('f_settled').checked
   }
   if(!d.name){showToast('名称不能为空');return}
   if(d.direction!=='income'&&(!d.startDate||!d.dueDate)){showToast('请选择日期');return}
   var id=window._editLoanId||'';var existing=getLoanById(id)
-  var loan={id:id||genId('L'),bookId:getActiveBookId(),direction:d.direction,name:d.name,contact:d.contact,principal:d.principal,currency:d.currency,rate:d.rate,interestType:d.interestType,planMethod:d.planMethod,planFreq:d.planFreq,incomeType:d.direction==='income'?d.incomeType:undefined,startDate:d.direction==='income'?d.dueDate:d.startDate,dueDate:d.dueDate,note:d.note,settled:false,createdAt:existing&&existing.createdAt||Date.now(),repayments:[]}
+  var loan={id:id||genId('L'),bookId:getActiveBookId(),direction:d.direction,name:d.name,contact:d.contact,principal:d.principal,currency:d.currency,rate:d.rate,interestType:d.interestType,planMethod:d.planMethod,planFreq:d.planFreq,incomeType:d.direction==='income'?d.incomeType:undefined,arrived:d.direction==='income'?d.arrived:undefined,startDate:d.direction==='income'?d.dueDate:d.startDate,dueDate:d.dueDate,note:d.note,settled:d.settled,createdAt:existing&&existing.createdAt||Date.now(),repayments:[]}
   upsertLoan(loan);showToast('保存成功');window._editLoanId='';if(d.direction==='income')navigate('#!/income');else navigate('#!/loanDetail?id='+loan.id)
 }
 function deleteLoanConfirm(){showModal('确认删除','删除不可恢复，继续？',function(ok){if(ok){deleteLoan(window._editLoanId||'');showToast('已删除');window._editLoanId='';navigate('#!/loans')}})}
