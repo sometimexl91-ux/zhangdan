@@ -51,6 +51,9 @@ var GH_CONFIG_KEY='github_sync_config',GH_PATH='data.json',GH_BRANCH='main'
 function getGithubConfig(){return storageGet(GH_CONFIG_KEY)||{token:'',owner:'',repo:''}}
 function setGithubConfig(c){storageSet(GH_CONFIG_KEY,c)}
 
+function b64DecodeUtf8(str){try{return decodeURIComponent(Array.from(atob(str)).map(function(c){return'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)}).join(''))}catch(e){return atob(str)}}
+function b64EncodeUtf8(str){try{return btoa(Array.from(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,function(m,p){return String.fromCharCode(parseInt(p,16))})).join(''))}catch(e){return btoa(str)}}
+
 // 读取 GitHub 上 data.json 的内容和 sha
 function githubRead(cb){
   var cfg=getGithubConfig()
@@ -62,7 +65,7 @@ function githubRead(cb){
   xhr.onload=function(){
     if(xhr.status===200||xhr.status===404){
       if(xhr.status===404){cb({ok:true,data:null,sha:null})}
-      else{try{var r=JSON.parse(xhr.responseText);var decoded=decodeURIComponent(escape(atob(r.content)));var parsed=JSON.parse(decoded);cb({ok:true,data:parsed,sha:r.sha})}catch(e){cb({ok:false,msg:'云端数据解析失败'})}}
+      else{try{var r=JSON.parse(xhr.responseText);var decoded=b64DecodeUtf8(r.content);var parsed=JSON.parse(decoded);cb({ok:true,data:parsed,sha:r.sha})}catch(e){cb({ok:false,msg:'云端数据解析失败'})}}
     }else{cb({ok:false,msg:'读取失败 ('+xhr.status+')'})}
   };xhr.onerror=function(){cb({ok:false,msg:'网络错误'})};xhr.send()
 }
@@ -72,7 +75,7 @@ function githubWrite(data,sha,cb){
   var cfg=getGithubConfig()
   if(!cfg.token||!cfg.owner||!cfg.repo){cb({ok:false,msg:'请先配置 GitHub Token'})}
   var url='https://api.github.com/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+'/contents/'+encodeURIComponent(GH_PATH)
-  var body={message:'Sync loan data '+new Date().toISOString().slice(0,10),content:btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))))}
+  var body={message:'Sync loan data '+new Date().toISOString().slice(0,10),content:b64EncodeUtf8(JSON.stringify(data,null,2))}
   if(sha)body.sha=sha
   var xhr=new XMLHttpRequest();xhr.open('PUT',url,true)
   xhr.setRequestHeader('Authorization','Bearer '+cfg.token)
