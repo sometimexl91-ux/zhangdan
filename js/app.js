@@ -212,11 +212,12 @@ function renderLoanEdit(){
   h+='<div class="form-group"><label>备注</label><textarea class="f-input" id="f_note_loan" rows="2" placeholder="选填">'+esc(f.note||'')+'</textarea></div>'
   h+='<div class="form-group"><label class="chk-label"><input type="checkbox" id="f_settled" '+(f.settled?'checked':'')+'> 已结清（标记为已还清，不再显示逾期）</label></div>'
   h+='</div><div id="inf" style="display:'+(dir==='income'?'block':'none')+'">'
-  h+='<div class="form-group"><label>收入名称 *</label><input class="f-input" id="f_name" value="'+esc(f.name)+'" placeholder="如：工资"/></div>'
+  h+='<div class="form-group"><label>收入名称 *</label><input class="f-input" id="f_inc_name" value="'+esc(f.name)+'" placeholder="如：工资"/></div>'
   h+='<div class="form-group"><label>收入类型</label><select class="f-input" id="f_incomeType"><option value="工资" '+(f.incomeType==='工资'?'selected':'')+'>工资</option><option value="投资" '+(f.incomeType==='投资'?'selected':'')+'>投资</option><option value="其他" '+(f.incomeType==='其他'?'selected':'')+'>其他</option></select></div>'
-  h+='<div class="form-group"><label>金额 *</label><input class="f-input" id="f_principal" value="'+esc(f.principal)+'" placeholder="0" type="number"/></div>'
-  h+='<div class="form-group"><label>到账日期 *</label><input class="f-input" id="f_dueDate" value="'+esc(f.dueDate)+'" type="date"/></div>'
-  h+='<div class="form-group"><label>备注</label><textarea class="f-input" id="f_note" rows="2" placeholder="选填">'+esc(f.note||'')+'</textarea></div>'
+  h+='<div class="form-group"><label>金额 *</label><input class="f-input" id="f_inc_principal" value="'+esc(f.principal)+'" placeholder="0" type="number"/></div>'
+  h+='<div class="form-group"><label>到账日期 *</label><input class="f-input" id="f_inc_dueDate" value="'+esc(f.dueDate)+'" type="date"/></div>'
+  h+='<div class="form-group"><label class="chk-label"><input type="checkbox" id="f_inc_arrived" '+(f.arrived?'checked':'')+'> 已到账</label></div>'
+  h+='<div class="form-group"><label>备注</label><textarea class="f-input" id="f_inc_note" rows="2" placeholder="选填">'+esc(f.note||'')+'</textarea></div>'
   h+='</div><div style="display:flex;gap:12px;margin-top:16px"><button class="btn btn-confirm" style="flex:1" onclick="saveLoan()">保存</button>'+(id?'<button class="btn btn-cancel" style="flex:1" onclick="deleteLoanConfirm()">删除</button>':'')+'</div></div>'
   return h
 }
@@ -225,10 +226,12 @@ function toggleDirFields(){var d=window._efD||'lend';var lf=document.getElementB
 function saveLoan(){
   window._efD=window._efD||'lend';var d={direction:window._efD,name:document.getElementById('f_name').value.trim(),contact:'',principal:parseFloat(document.getElementById('f_principal').value)||0,currency:'¥',rate:0,interestType:'不计息',planMethod:'lump',planFreq:'monthly',startDate:'',dueDate:'',note:'',incomeType:'工资',settled:false,arrived:false}
   if(d.direction==='income'){
-    d.dueDate=document.getElementById('f_dueDate').value
-    d.incomeType=document.getElementById('f_incomeType').value
-    d.note=document.getElementById('f_note').value.trim()
-    d.arrived=document.getElementById('f_arrived').checked
+    d.dueDate=document.getElementById('f_inc_dueDate').value
+    d.incomeType=document.getElementById('f_inc_incomeType').value
+    d.note=document.getElementById('f_inc_note').value.trim()
+    d.arrived=document.getElementById('f_inc_arrived').checked
+    d.name=document.getElementById('f_inc_name').value.trim()
+    d.principal=parseFloat(document.getElementById('f_inc_principal').value)||0
   }else{
     d.contact=document.getElementById('f_contact').value.trim();d.currency=document.getElementById('f_currency').value.trim()||'¥'
     d.rate=parseFloat(document.getElementById('f_rate').value)||0;d.interestType=document.getElementById('f_interestType').value
