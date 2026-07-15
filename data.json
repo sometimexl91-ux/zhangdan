@@ -1,16 +1,16 @@
 {
   "app": "loan-web",
   "version": 1,
-  "exportedAt": "2026-07-15T13:42:38.602Z",
+  "exportedAt": "2026-07-15T13:54:44.873Z",
   "books": [
     {
       "id": "B_1784120588747_897",
-      "name": "Ã¦ÂÂÃ§ÂÂÃ¨Â´Â¦Ã¦ÂÂ¬",
+      "name": "ÃÂ¦ÃÂÃÂÃÂ§ÃÂÃÂÃÂ¨ÃÂ´ÃÂ¦ÃÂ¦ÃÂÃÂ¬",
       "createdAt": 1784120588747
     },
     {
       "id": "B_1784121882302_367",
-      "name": "æçè´¦æ¬",
+      "name": "Ã¦ÂÂÃ§ÂÂÃ¨Â´Â¦Ã¦ÂÂ¬",
       "createdAt": 1784121882302
     }
   ],
@@ -33,6 +33,25 @@
       "note": "",
       "settled": false,
       "createdAt": 1784122046060,
+      "repayments": []
+    },
+    {
+      "id": "L_1784123083014_241",
+      "bookId": "B_1784121882302_367",
+      "direction": "loan",
+      "name": "招行闪电贷",
+      "contact": "",
+      "principal": 180000,
+      "currency": "¥",
+      "rate": 2.66,
+      "interestType": "单利",
+      "planMethod": "interestFirst",
+      "planFreq": "monthly",
+      "startDate": "2025-03-30",
+      "dueDate": "2028-03-30",
+      "note": "",
+      "settled": false,
+      "createdAt": 1784123083014,
       "repayments": []
     }
   ]
