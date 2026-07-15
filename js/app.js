@@ -406,6 +406,8 @@ function renderReminder(){
   })
   upcomingIncomes.sort(function(a,b){return a.days-b.days})
   // 月度还款分析（当月全部已还+待还）
+  var monthStart=todayStr().slice(0,7)+'-01'
+  var monthEnd=new Date(parseInt(todayStr().slice(0,4)),parseInt(todayStr().slice(5,7)),0).toISOString().slice(0,10)
   var loanPayments=[],incomeSchedule=[]
   all.forEach(function(l){
     if(l.direction==='income')return
@@ -449,8 +451,6 @@ function renderReminder(){
   if(upcomingIncomes.length===0)h+='<div class="empty">暂无待入账收入</div>'
   h+='</div>'
   // 月度还款分析（仅当月 1 号到月底）
-  var monthStart=todayStr().slice(0,7)+'-01'
-  var monthEnd=new Date(parseInt(todayStr().slice(0,4)),parseInt(todayStr().slice(5,7)),0).toISOString().slice(0,10)
   var thisMonthLoans=loanPayments.filter(function(p){return p.date>=monthStart&&p.date<=monthEnd})
   var thisMonthIncomes=incomeSchedule.filter(function(p){return p.date>=monthStart&&p.date<=monthEnd})
   var pendingTotal=0
