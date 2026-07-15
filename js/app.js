@@ -444,13 +444,18 @@ function renderReminder(){
   })
   if(upcomingIncomes.length===0)h+='<div class="empty">暂无待入账收入</div>'
   h+='</div>'
-  // 月度还款分析
+  // 月度还款分析（仅当月 1 号到月底）
+  var monthStart=todayStr().slice(0,7)+'-01'
+  var monthEnd=new Date(parseInt(todayStr().slice(0,4)),parseInt(todayStr().slice(5,7)),0).toISOString().slice(0,10)
+  var thisMonthLoans=loanPayments.filter(function(p){return p.date>=monthStart&&p.date<=monthEnd})
+  var thisMonthIncomes=incomeSchedule.filter(function(p){return p.date>=monthStart&&p.date<=monthEnd})
   var pendingTotal=0
-  loanPayments.forEach(function(p){pendingTotal+=Number(p.amount)||0})
+  thisMonthLoans.forEach(function(p){pendingTotal+=Number(p.amount)||0})
   var incomeTotal=0
-  incomeSchedule.forEach(function(inc){incomeTotal+=Number(inc.amount)||0})
-  window._bdLoans=loanPayments;window._bdIncomes=incomeSchedule
-  h+='<div class="card"><div class="card-title">还款能力分析</div><div class="stat-row2"><div class="stat-box" onclick="showBreakdown(\'loan\')"><div class="stat-label">待还总额</div><div class="stat-val red">'+money(pendingTotal)+'</div></div><div class="stat-box" onclick="showBreakdown(\'income\')"><div class="stat-label">待入账收入</div><div class="stat-val green">'+money(incomeTotal)+'</div></div></div>'
+  thisMonthIncomes.forEach(function(inc){incomeTotal+=Number(inc.amount)||0})
+  var monthLabel=todayStr().slice(0,7)
+  window._bdLoans=thisMonthLoans;window._bdIncomes=thisMonthIncomes
+  h+='<div class="card"><div class="card-title">还款能力分析 <span class="muted">'+monthLabel+'</span></div><div class="stat-row2"><div class="stat-box" onclick="showBreakdown(\'loan\')"><div class="stat-label">本月待还</div><div class="stat-val red">'+money(pendingTotal)+'</div></div><div class="stat-box" onclick="showBreakdown(\'income\')"><div class="stat-label">本月待入账</div><div class="stat-val green">'+money(incomeTotal)+'</div></div></div>'
   if(incomeTotal>0){
     var diff=incomeTotal-pendingTotal
     h+='<div class="alert '+(diff>=0?'orange-alert':'red-alert')+'">收入比待还高 '+money(Math.abs(diff))+'，'+(diff>=0?'还款压力可控':'存在缺口')+'</div>'
@@ -460,24 +465,35 @@ function renderReminder(){
 }
 function setLead(v){localStorage.setItem('reminderLeadDays',v);render()}
 function bindReminder(){}
-function showBreakdown(type){
+function showBreakdown(type,sortBy,sortDesc){
   var items=type==='loan'?window._bdLoans||[]:window._bdIncomes||[]
-  var title=type==='loan'?'待还总额明细':'待入账收入明细'
-  if(items.length===0){showModal(title,'暂无数据');return}
-  var html='<div style="max-height:300px;overflow-y:auto;text-align:left;font-size:13px">'
-  html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-weight:500">'
-  html+='<span>名称</span><span>金额</span><span>日期</span></div>'
-  items.forEach(function(item){
+  var title=type==='loan'?'本月待还明细':'本月待入账明细'
+  if(items.length===0){showModal(title,'暂无本月数据');return}
+  sortBy=sortBy||'date';sortDesc=sortDesc||false
+  var sorted=items.slice().sort(function(a,b){
+    var va=a[sortBy],vb=b[sortBy]
+    if(typeof va==='number'&&typeof vb==='number')return sortDesc?vb-va:va-vb
+    return sortDesc?String(vb).localeCompare(String(va)):String(va).localeCompare(String(vb))
+  })
+  var sortBtn=function(field,label){
+    var active=sortBy===field?'background:#07c160;color:#fff;border-color:#07c160':''
+    var arrow=sortBy===field?(sortDesc?' &#9660;':' &#9650;'):''
+    return '<span style="cursor:pointer;padding:3px 8px;border-radius:12px;font-size:11px;border:1px solid #ddd;'+active+'" onclick="this.closest(\'div[style]\').parentElement.remove();showBreakdown(\''+type+'\',\''+field+'\','+(sortBy===field?!sortDesc:'false')+')">'+label+arrow+'</span>'
+  }
+  var html='<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">'+sortBtn('date','日期')+sortBtn('amount','金额')+'</div>'
+  html+='<div style="max-height:280px;overflow-y:auto;text-align:left;font-size:13px">'
+  html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-weight:500"><span>名称</span><span>金额</span><span>日期</span></div>'
+  sorted.forEach(function(item){
     html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f5">'
     html+='<span>'+esc(item.name)+'</span>'
     html+='<span style="color:'+(type==='loan'?'#ee4d2d':'#07c160')+'">'+money(item.amount)+'</span>'
     html+='<span style="color:#999">'+item.date+'</span></div>'
   })
-  var total=items.reduce(function(s,p){return s+(Number(p.amount)||0)},0)
+  var total=sorted.reduce(function(s,p){return s+(Number(p.amount)||0)},0)
   html+='<div style="display:flex;justify-content:space-between;padding:6px 0;font-weight:500"><span>合计</span><span>'+money(total)+'</span><span></span></div>'
   html+='</div>'
   var d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10000;display:flex;align-items:center;justify-content:center'
-  d.innerHTML='<div style="background:#fff;border-radius:12px;width:320px;max-width:90%;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.15)"><div style="font-size:15px;font-weight:500;margin-bottom:12px;text-align:center">'+esc(title)+'</div>'+html+'<div style="text-align:center;margin-top:12px"><button class="btn btn-cancel" onclick="this.closest(\'div[style]\').remove()" style="padding:8px 24px">关闭</button></div></div>'
+  d.innerHTML='<div style="background:#fff;border-radius:12px;width:340px;max-width:92%;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.15)"><div style="font-size:15px;font-weight:500;margin-bottom:8px;text-align:center">'+esc(title)+'</div>'+html+'<div style="text-align:center;margin-top:10px"><button class="btn btn-cancel" onclick="this.closest(\'div[style]\').remove()" style="padding:8px 24px">关闭</button></div></div>'
   document.body.appendChild(d)
 }
 
