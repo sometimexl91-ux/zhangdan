@@ -301,11 +301,26 @@ function renderLoanDetail(){
   h+='<button class="btn btn-confirm" style="flex:1" onclick="navigate(\'#!/repaymentEdit?loanId='+raw.id+'\')">新增还款</button>'
   h+='<button class="btn btn-cancel" style="flex:1" onclick="window._editLoanId=\''+raw.id+'\';navigate(\'#!/loanEdit\')">编辑借款</button>'
   if(c.status!=='paid')h+='<button class="btn btn-danger" style="flex:1" onclick="markSettled(\''+raw.id+'\')">标记结清</button>'
+  h+='<button class="btn btn-blue" style="flex:1;background:#4084ff" onclick="moveLoanBook(\''+raw.id+'\')">移动到</button>'
   h+='</div></div>'
   return h
 }
 function bindLoanDetail(){}
 function markSettled(id){showModal('确认结清','将这笔借款标记为「已结清」。确认继续？',function(ok){if(ok){var l=getLoanById(id);if(l){l.settled=true;upsertLoan(l);showToast('已标记结清');render()}}})}
+function moveLoanBook(id){
+  var l=getLoanById(id);if(!l)return
+  var books=getBooks()
+  if(books.length<=1){showToast('只有一个账本，无需移动');return}
+  var opts=books.map(function(b,i){return{label:b.name+' ('+(b.id===l.bookId?'当前':'')+')',description:'移动到「'+b.name+'」'}})  
+  showPrompt('移动到哪个账本？','','',function(v){
+    for(var i=0;i<books.length;i++){
+      if(String(i)===v&&books[i].id!==l.bookId){
+        l.bookId=books[i].id;upsertLoan(l);showToast('已移动到「'+books[i].name+'」');render();return
+      }
+    }
+    showToast('无效选择或同一账本')
+  })
+}
 function showStatusEdit(id){
   var l=getLoanById(id);if(!l)return
   if(l.settled){showModal('当前已结清','标记为「进行中」？',function(ok){if(ok){l.settled=false;upsertLoan(l);showToast('已改为进行中');render()}})}
