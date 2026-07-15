@@ -1,0 +1,22 @@
+{
+  "name": "借还记账",
+  "short_name": "借还记账",
+  "description": "借出·贷款·收入记账，家庭多设备共享",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#07c160",
+  "theme_color": "#07c160",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
