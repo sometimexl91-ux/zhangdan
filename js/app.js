@@ -408,26 +408,25 @@ function renderReminder(){
   // 月度还款分析（当月全部已还+待还）
   var monthStart=todayStr().slice(0,7)+'-01'
   var monthEnd=new Date(parseInt(todayStr().slice(0,4)),parseInt(todayStr().slice(5,7)),0).toISOString().slice(0,10)
-  var loanPayments=[],incomeSchedule=[]
+  var rawLoans=[],rawIncomes=[]
   all.forEach(function(l){
     if(l.direction==='income')return
     if(l.planMethod&&l.planMethod!=='lump'&&l.planFreq==='monthly'){
       var plan=enrich([l],todayStr())[0].plan
       if(plan&&plan.periods){
         plan.periods.forEach(function(p){
-          if(p.dueDate>=monthStart&&p.dueDate<=monthEnd)
-            loanPayments.push({name:l.name,amount:p.total,date:p.dueDate,status:p.paid?'已还':'待还'})
+          rawLoans.push({name:l.name,amount:p.total,date:p.dueDate,status:p.paid?'已还':'待还'})
         })
       }
-    }else if(l.dueDate){
-      if(l.dueDate>=monthStart&&l.dueDate<=monthEnd)
-        loanPayments.push({name:l.name,amount:Number(l.principal)||0,date:l.dueDate,status:l.settled?'已还':'待还'})
+    }else{
+      rawLoans.push({name:l.name,amount:Number(l.principal)||0,date:l.dueDate,status:l.settled?'已还':'待还'})
     }
   })
   incomes.forEach(function(l){
-    if(l.dueDate>=monthStart&&l.dueDate<=monthEnd)
-      incomeSchedule.push({name:l.name,amount:l.principal,date:l.dueDate,type:l.incomeType||'收入',status:l.arrived!==undefined?(l.arrived?'已到账':'待入账'):(l.dueDate<=todayStr()?'已到账':'待入账')})
+    rawIncomes.push({name:l.name,amount:l.principal,date:l.dueDate,type:l.incomeType||'收入',status:l.arrived!==undefined?(l.arrived?'已到账':'待入账'):(l.dueDate<=todayStr()?'已到账':'待入账')})
   })
+  var loanPayments=rawLoans.filter(function(p){return p.date&&p.date>=monthStart&&p.date<=monthEnd})
+  var incomeSchedule=rawIncomes.filter(function(p){return p.date&&p.date>=monthStart&&p.date<=monthEnd})
   var h='<div class="card"><div class="card-title">提醒中心</div><div class="slide-row"><span>提前提醒 '+lead+' 天</span><input type="range" min="1" max="30" value="'+lead+'" oninput="setLead(this.value)" style="flex:1"/></div></div>'
   h+='<div class="card"><div class="card-title red">已逾期 ('+overdue.length+')</div>'
   overdue.forEach(function(l){
@@ -451,14 +450,12 @@ function renderReminder(){
   if(upcomingIncomes.length===0)h+='<div class="empty">暂无待入账收入</div>'
   h+='</div>'
   // 月度还款分析（仅当月 1 号到月底）
-  var thisMonthLoans=loanPayments.filter(function(p){return p.date>=monthStart&&p.date<=monthEnd})
-  var thisMonthIncomes=incomeSchedule.filter(function(p){return p.date>=monthStart&&p.date<=monthEnd})
   var pendingTotal=0
-  thisMonthLoans.forEach(function(p){pendingTotal+=Number(p.amount)||0})
+  loanPayments.forEach(function(p){pendingTotal+=Number(p.amount)||0})
   var incomeTotal=0
-  thisMonthIncomes.forEach(function(inc){incomeTotal+=Number(inc.amount)||0})
+  incomeSchedule.forEach(function(inc){incomeTotal+=Number(inc.amount)||0})
   var monthLabel=todayStr().slice(0,7)
-  window._bdLoans=thisMonthLoans;window._bdIncomes=thisMonthIncomes
+  window._bdLoans=loanPayments;window._bdIncomes=incomeSchedule
   h+='<div class="card"><div class="card-title">还款能力分析 <span class="muted">'+monthLabel+'</span></div><div class="stat-row2"><div class="stat-box" onclick="showBreakdown(\'loan\')"><div class="stat-label">本月待还</div><div class="stat-val red">'+money(pendingTotal)+'</div></div><div class="stat-box" onclick="showBreakdown(\'income\')"><div class="stat-label">本月待入账</div><div class="stat-val green">'+money(incomeTotal)+'</div></div></div>'
   if(incomeTotal>0){
     var diff=incomeTotal-pendingTotal
