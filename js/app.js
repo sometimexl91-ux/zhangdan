@@ -421,7 +421,7 @@ function renderBackup(){
   h+='<div style="display:flex;gap:8px"><button class="btn btn-confirm" style="flex:1" onclick="syncFromGithub()">&#9660; 从云端下载</button><button class="btn btn-blue" style="flex:1;background:#4084ff" onclick="syncToGithub()">&#9650; 上传到云端</button></div>'
   h+='<div id="ghStatus" class="muted" style="font-size:12px;margin-top:8px">'+(cfg.token&&cfg.owner&&cfg.repo?'已配置 &#10003;':'未配置，先填写上方信息')+'</div>'
   h+='</div>'
-  h+='<div class="card"><div class="card-title">预览辅助</div><div class="btn-line no-border" onclick="restoreDemo()"><span class="muted">恢复内置示例数据（覆盖当前）</span><span class="muted">&#8250;</span></div><div class="muted" style="font-size:12px;margin-top:8px">首次打开会自动带示例数据。</div></div>'
+  h+='<div class="card"><div class="card-title">预览辅助</div><div class="btn-line no-border" onclick="restoreDemo()"><span class="muted">恢复内置示例数据（覆盖当前）</span><span class="muted">&#8250;</span></div><div class="btn-line no-border" onclick="clearAllData()"><span class="red">清空全部数据（不可恢复）</span><span class="muted">&#8250;</span></div><div class="muted" style="font-size:12px;margin-top:8px">首次打开会自动带示例数据。</div></div>'
   return h
 }
 function bindBackup(){}
@@ -482,6 +482,16 @@ function importJson(){
   };inp.click()
 }
 function restoreDemo(){showModal('恢复示例数据','这会覆盖当前全部数据，恢复到内置示例。确定继续？',function(ok){if(ok){seedDemoData();localStorage.setItem('seeded','1');showToast('已恢复示例');render()}})}
+function clearAllData(){
+  showModal('清空数据','确定清空所有账本和记录？此操作不可恢复！\n建议先导出 JSON 备份。',function(ok){
+    if(ok){
+      saveBooks([]);saveLoans([]);setActiveBookId('');localStorage.removeItem('seeded')
+      ensureBooks()
+      showToast('已清空')
+      render()
+    }
+  })
+}
 
 /* ===== Init ===== */
 ensureBooks()
