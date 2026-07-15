@@ -62,7 +62,7 @@ function githubRead(cb){
   xhr.onload=function(){
     if(xhr.status===200||xhr.status===404){
       if(xhr.status===404){cb({ok:true,data:null,sha:null})}
-      else{try{var r=JSON.parse(xhr.responseText);var decoded=atob(r.content);var parsed=JSON.parse(decoded);cb({ok:true,data:parsed,sha:r.sha})}catch(e){cb({ok:false,msg:'云端数据解析失败'})}}
+      else{try{var r=JSON.parse(xhr.responseText);var decoded=decodeURIComponent(escape(atob(r.content)));var parsed=JSON.parse(decoded);cb({ok:true,data:parsed,sha:r.sha})}catch(e){cb({ok:false,msg:'云端数据解析失败'})}}
     }else{cb({ok:false,msg:'读取失败 ('+xhr.status+')'})}
   };xhr.onerror=function(){cb({ok:false,msg:'网络错误'})};xhr.send()
 }
