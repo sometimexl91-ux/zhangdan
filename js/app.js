@@ -184,7 +184,7 @@ function renderIncome(){
     })
   })
   if(all.length===0)h+='<div class="empty">暂无收入记录</div>'
-  h+='<div class="fab" onclick="navigate(\'#!/loanEdit\')">+</div></div>'
+  h+='<div class="fab" onclick="window._editLoanDir=\'income\';navigate(\'#!/loanEdit\')">+</div></div>'
   return h
 }
 function bindIncome(){}
@@ -196,8 +196,8 @@ function toggleIncomeArrived(id){
 /* ---- 3. 编辑（借贷/收入共用） ---- */
 function renderLoanEdit(){
   var id=window._editLoanId||''
-  var loan=getLoanById(id)
-  var dir=(loan?loan.direction:'lend')==='income'?'income':(loan?loan.direction:'lend')==='borrow'?'loan':(loan?loan.direction||'lend':'lend')
+  var loan=getLoanById(id),defaultDir=window._editLoanDir||'lend';window._editLoanDir=''
+  var dir=loan?loan.direction:defaultDir;dir=dir==='income'?'income':dir==='borrow'?'loan':dir
   var f=loan||{direction:dir,name:'',contact:'',principal:'',currency:'¥',rate:'',interestType:'不计息',planMethod:'lump',planFreq:'monthly',startDate:'',dueDate:'',note:'',incomeType:'工资'}
   var h='<div class="card"><div class="card-title">'+(id?'编辑':'新增')+'</div>'
   h+='<div class="form-group"><label>类型</label><div class="seg-control" id="dirSeg"><span class="seg-item '+(dir==='lend'?'seg-on':'')+'" data-dir="lend" onclick="window._efD=\'lend\';document.querySelectorAll(\'#dirSeg .seg-item\').forEach(function(e){e.classList.remove(\'seg-on\')});this.classList.add(\'seg-on\');toggleDirFields()">借出</span><span class="seg-item '+(dir==='loan'?'seg-on':'')+'" data-dir="loan" onclick="window._efD=\'loan\';document.querySelectorAll(\'#dirSeg .seg-item\').forEach(function(e){e.classList.remove(\'seg-on\')});this.classList.add(\'seg-on\');toggleDirFields()">贷款</span><span class="seg-item '+(dir==='income'?'seg-on':'')+'" data-dir="income" onclick="window._efD=\'income\';document.querySelectorAll(\'#dirSeg .seg-item\').forEach(function(e){e.classList.remove(\'seg-on\')});this.classList.add(\'seg-on\');toggleDirFields()">收入</span></div></div>'
