@@ -159,7 +159,7 @@ function renderLoans(){
   loans.forEach(function(l){
     var c=enrich([l],todayStr())[0]
     var tag=(l.planMethod&&l.planMethod!=='lump')?l.planMethod==='equalInstallment'?'等额本息':'等额本金':''
-    h+='<div class="loan-row" onclick="navigate(\'#!/loanDetail?id='+l.id+'\')"><div class="lr-left"><span class="'+dirClass(l.direction)+'">'+dirText(l.direction)+'</span><span class="lr-name">'+esc(l.name||'未命名')+'</span>'+(tag?'<span class="plan-tag">'+tag+'</span>':'')+'</div><div class="lr-right"><span class="lr-amount">'+money(l.remaining,l.currency)+'</span><span class="lr-status '+statusClass(c.status)+'">'+statusText(c.status)+'</span></div></div>'
+    h+='<div class="loan-row" onclick="navigate(\'#!/loanDetail?id='+l.id+'\')"><div class="lr-left"><span class="'+dirClass(l.direction)+'">'+dirText(l.direction)+'</span><span class="lr-name">'+esc(l.name||'未命名')+'</span>'+(tag?'<span class="plan-tag">'+tag+'</span>':'')+'</div><div class="lr-right"><span class="lr-amount">'+money(l.remaining,l.currency)+'</span><span class="lr-status '+statusClass(c.status)+'" oncontextmenu="event.preventDefault();showStatusEdit(\''+l.id+'\')">'+statusText(c.status)+'</span></div></div>'
   })
   if(loans.length===0)h+='<div class="card"><div class="empty">暂无可记录的借贷</div></div>'
   h+='<div class="fab" onclick="navigate(\'#!/loanEdit\')">+</div>'
@@ -240,7 +240,18 @@ function saveLoan(){
   if(!d.name){showToast('名称不能为空');return}
   if(d.direction!=='income'&&(!d.startDate||!d.dueDate)){showToast('请选择日期');return}
   var id=window._editLoanId||'';var existing=getLoanById(id)
-  var loan={id:id||genId('L'),bookId:getActiveBookId(),direction:d.direction,name:d.name,contact:d.contact,principal:d.principal,currency:d.currency,rate:d.rate,interestType:d.interestType,planMethod:d.planMethod,planFreq:d.planFreq,incomeType:d.direction==='income'?d.incomeType:undefined,arrived:d.direction==='income'?d.arrived:undefined,startDate:d.direction==='income'?d.dueDate:d.startDate,dueDate:d.dueDate,note:d.note,settled:d.settled,createdAt:existing&&existing.createdAt||Date.now(),repayments:[]}
+  var loan={id:id||genId('L'),bookId:getActiveBookId(),direction:d.direction,name:d.name,contact:d.contact,principal:d.principal,currency:d.currency,rate:d.rate,interestType:d.interestType,planMethod:d.planMethod,planFreq:d.planFreq,incomeType:d.direction==='income'?d.incomeType:undefined,arrived:d.direction==='income'?d.arrived:undefined,startDate:d.direction==='income'?d.dueDate:d.startDate,dueDate:d.dueDate,note:d.note,settled:d.settled,createdAt:existing&&existing.createdAt||Date.now(),repayments:existing&&existing.repayments||[]}
+  // 自动填充已过期期次为已还（仅新增分期贷款）
+  if(!id&&d.direction!=='income'&&!d.settled&&d.planMethod&&d.planMethod!=='lump'){
+    var _plan=genPlan(loan,todayStr())
+    var _autoReps=[]
+    _plan.periods.forEach(function(p){
+      if(p.dueDate<todayStr()&&!loan.repayments.some(function(r){return r.planIndex===p.index})){
+        _autoReps.push({id:genId('R'),amount:r2(p.total),date:p.dueDate,method:'代扣',note:'自动填充（历史期次）',planIndex:p.index,principalPortion:r2(p.principal),interestPortion:r2(p.interest)})
+      }
+    })
+    _autoReps.reverse().forEach(function(r){loan.repayments.unshift(r)})
+  }
   upsertLoan(loan);showToast('保存成功');window._editLoanId='';if(d.direction==='income')navigate('#!/income');else navigate('#!/loanDetail?id='+loan.id)
 }
 function deleteLoanConfirm(){showModal('确认删除','删除不可恢复，继续？',function(ok){if(ok){deleteLoan(window._editLoanId||'');showToast('已删除');window._editLoanId='';navigate('#!/loans')}})}
@@ -254,8 +265,8 @@ function renderLoanDetail(){
   var h='<div class="card"><div class="detail-header"><span class="'+dirClass(raw.direction)+'">'+dirText(raw.direction)+'</span><span class="detail-name">'+esc(raw.name)+'</span></div>'
   if(raw.contact)h+='<div class="detail-contact">'+esc(raw.contact)+'</div>'
   h+='<div class="stat-row3"><div class="stat-mini"><div class="mini-label">已还</div><div class="mini-val">'+money(c.totalRepaid)+'</div></div><div class="stat-mini"><div class="mini-label">剩余本金</div><div class="mini-val green">'+money(c.remaining)+'</div></div><div class="stat-mini"><div class="mini-label">应付利息</div><div class="mini-val">'+money(c.interest)+'</div></div></div>'
-  if(c.isOverdue)h+='<div class="alert red-alert">已逾期'+Math.abs(c.daysToDue)+'天，请尽快处理</div>'
-  else if(c.daysToDue!==null&&c.daysToDue>=0&&c.status!=='paid')h+='<div class="alert orange-alert">距下一期还有 '+c.daysToDue+' 天（'+c.effectiveDueDate+'）</div>'
+  if(c.isOverdue)h+='<div class="alert red-alert" oncontextmenu="event.preventDefault();showStatusEdit(\''+raw.id+'\')">已逾期'+Math.abs(c.daysToDue)+'天，请尽快处理</div>'
+  else if(c.daysToDue!==null&&c.daysToDue>=0&&c.status!=='paid')h+='<div class="alert orange-alert" oncontextmenu="event.preventDefault();showStatusEdit(\''+raw.id+'\')">距下一期还有 '+c.daysToDue+' 天（'+c.effectiveDueDate+'）</div>'
   h+='</div>'
 
   // 还款计划表
@@ -265,7 +276,7 @@ function renderLoanDetail(){
     h+='<div class="plan-table"><div class="plan-tr plan-th"><span class="plan-c">#</span><span class="plan-c">应还日</span><span class="plan-c">本金</span><span class="plan-c">利息</span><span class="plan-c">合计</span><span class="plan-c plan-act"></span></div>'
     plan.periods.forEach(function(p){
       var pc='plan-tr'+(p.status==='paid'?' plan-paid':'')+(p.isNext?' plan-next':'')
-      h+='<div class="'+pc+'"><span class="plan-c">#'+(p.index+1)+'</span><span class="plan-c">'+(p.dueDate||'')+'</span><span class="plan-c">'+money(p.principal)+'</span><span class="plan-c">'+money(p.interest)+'</span><span class="plan-c">'+money(p.total)+'</span><span class="plan-c plan-act">'+(p.status==='paid'?'<span class="tag tag-paid">已还</span>':p.isNext?'<span class="tag tag-active">待还</span>':'<span class="tag tag-coming">待还</span>')+'</span></div>'
+      h+='<div class="'+pc+'"><span class="plan-c">#'+(p.index+1)+'</span><span class="plan-c">'+(p.dueDate||'')+'</span><span class="plan-c">'+money(p.principal)+'</span><span class="plan-c">'+money(p.interest)+'</span><span class="plan-c">'+money(p.total)+'</span><span class="plan-c plan-act"><span class="tag '+(p.status==='paid'?'tag-paid':'tag-coming')+'" oncontextmenu="event.preventDefault();showPeriodEdit(\''+raw.id+'\','+p.index+')">'+(p.status==='paid'?'已还':'待还')+'</span></span></div>'
     })
     h+='</div></div>'
   }else{
@@ -295,6 +306,31 @@ function renderLoanDetail(){
 }
 function bindLoanDetail(){}
 function markSettled(id){showModal('确认结清','将这笔借款标记为「已结清」。确认继续？',function(ok){if(ok){var l=getLoanById(id);if(l){l.settled=true;upsertLoan(l);showToast('已标记结清');render()}}})}
+function showStatusEdit(id){
+  var l=getLoanById(id);if(!l)return
+  if(l.settled){showModal('当前已结清','标记为「进行中」？',function(ok){if(ok){l.settled=false;upsertLoan(l);showToast('已改为进行中');render()}})}
+  else{showModal('当前进行中','标记为「已结清」？',function(ok){if(ok){l.settled=true;upsertLoan(l);showToast('已标记结清');render()}})}
+}
+function showPeriodEdit(loanId,idx){
+  var l=getLoanById(loanId);if(!l)return
+  var plan=genPlan(l,todayStr())
+  if(!plan||!plan.periods[idx])return
+  var p=plan.periods[idx]
+  var isPaid=l.repayments.some(function(r){return r.planIndex===idx})
+  showModal('第'+(idx+1)+'期 ('+p.dueDate+')','当前状态：'+(isPaid?'已还':'待还')+'\n确定要切换吗？',function(ok){
+    if(!ok)return
+    if(isPaid){
+      // 取消已还：删除该期还款记录
+      showModal('确认','取消已还会删除该期还款记录，继续？',function(ok2){
+        if(ok2){l.repayments=l.repayments.filter(function(r){return r.planIndex!==idx});upsertLoan(l);showToast('已取消');render()}
+      })
+    }else{
+      // 标记为已还：创建一条还款记录
+      var r={id:genId('R'),amount:r2(p.total),date:p.dueDate,method:'手动',note:'长按标记已还',planIndex:idx,principalPortion:r2(p.principal),interestPortion:r2(p.interest)}
+      upsertRepayment(loanId,r);showToast('已标记第'+(idx+1)+'期为已还');render()
+    }
+  })
+}
 
 /* ---- 5. 还款编辑 ---- */
 function renderRepaymentEdit(){
