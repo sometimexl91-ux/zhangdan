@@ -273,12 +273,12 @@ function renderLoanDetail(){
   if(raw.planMethod&&raw.planMethod!=='lump'){
     var plan=c.plan;var planLabel={'equalInstallment':'等额本息','equalPrincipal':'等额本金','interestFirst':'先息后本'}[raw.planMethod]||''
     h+='<div class="card"><div class="card-title">还款计划表 · '+planLabel+' '+({'weekly':'按周','monthly':'按月','quarterly':'按季','yearly':'按年'}[raw.planFreq]||'')+' '+plan.periodCount+'期</div>'
-    h+='<div class="plan-table"><div class="plan-tr plan-th"><span class="plan-c">#</span><span class="plan-c">应还日</span><span class="plan-c">本金</span><span class="plan-c">利息</span><span class="plan-c">合计</span><span class="plan-c plan-act"></span></div>'
+    h+='<div class="plan-table"><div class="plan-table-inner"><div class="plan-tr plan-th"><span class="plan-c">#</span><span class="plan-c">应还日</span><span class="plan-c">本金</span><span class="plan-c">利息</span><span class="plan-c">合计</span><span class="plan-c plan-act"></span></div>'
     plan.periods.forEach(function(p){
       var pc='plan-tr'+(p.status==='paid'?' plan-paid':'')+(p.isNext?' plan-next':'')
       h+='<div class="'+pc+'"><span class="plan-c">#'+(p.index+1)+'</span><span class="plan-c">'+(p.dueDate||'')+'</span><span class="plan-c">'+money(p.principal)+'</span><span class="plan-c">'+money(p.interest)+'</span><span class="plan-c">'+money(p.total)+'</span><span class="plan-c plan-act" onclick="showPeriodEdit(\''+raw.id+'\','+p.index+')"><span class="tag '+(p.status==='paid'?'tag-paid':'tag-coming')+'">'+(p.status==='paid'?'已还':'待还')+'</span></span></div>'
     })
-    h+='</div></div>'
+    h+='</div></div></div>'
   }else{
     h+='<div class="card"><div class="card-title">还款信息</div><div class="info-row"><span>本金</span><span>'+money(raw.principal)+'</span></div>'
     if(Number(raw.rate)>0)h+='<div class="info-row"><span>利率</span><span>'+raw.rate+'% ('+raw.interestType+')</span></div>'
