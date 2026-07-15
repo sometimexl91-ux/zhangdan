@@ -405,22 +405,26 @@ function renderReminder(){
     if(d>=todayStr())upcomingIncomes.push({name:l.name,amount:l.principal,date:d,incomeType:l.incomeType||'收入',days:daysBetween(todayStr(),d)})
   })
   upcomingIncomes.sort(function(a,b){return a.days-b.days})
-  // 月度还款分析
+  // 月度还款分析（当月全部已还+待还）
   var loanPayments=[],incomeSchedule=[]
   all.forEach(function(l){
     if(l.direction==='income')return
-    if(l.planMethod&&l.planMethod!=='lump'&&l.planFreq==='monthly'&&l.remaining>0){
+    if(l.planMethod&&l.planMethod!=='lump'&&l.planFreq==='monthly'){
       var plan=enrich([l],todayStr())[0].plan
       if(plan&&plan.periods){
-        var nextUnpaid=plan.periods.find(function(p){return!p.paid})
-        if(nextUnpaid)loanPayments.push({name:l.name,amount:nextUnpaid.total,date:nextUnpaid.dueDate})
+        plan.periods.forEach(function(p){
+          if(p.dueDate>=monthStart&&p.dueDate<=monthEnd)
+            loanPayments.push({name:l.name,amount:p.total,date:p.dueDate,status:p.paid?'已还':'待还'})
+        })
       }
-    }else if(l.remaining>0&&l.dueDate){
-      loanPayments.push({name:l.name,amount:l.remaining,date:l.dueDate})
+    }else if(l.dueDate){
+      if(l.dueDate>=monthStart&&l.dueDate<=monthEnd)
+        loanPayments.push({name:l.name,amount:Number(l.principal)||0,date:l.dueDate,status:l.settled?'已还':'待还'})
     }
   })
   incomes.forEach(function(l){
-    incomeSchedule.push({name:l.name,amount:l.principal,date:l.dueDate,type:l.incomeType||'收入'})
+    if(l.dueDate>=monthStart&&l.dueDate<=monthEnd)
+      incomeSchedule.push({name:l.name,amount:l.principal,date:l.dueDate,type:l.incomeType||'收入',status:l.arrived!==undefined?(l.arrived?'已到账':'待入账'):(l.dueDate<=todayStr()?'已到账':'待入账')})
   })
   var h='<div class="card"><div class="card-title">提醒中心</div><div class="slide-row"><span>提前提醒 '+lead+' 天</span><input type="range" min="1" max="30" value="'+lead+'" oninput="setLead(this.value)" style="flex:1"/></div></div>'
   h+='<div class="card"><div class="card-title red">已逾期 ('+overdue.length+')</div>'
@@ -482,15 +486,17 @@ function showBreakdown(type,sortBy,sortDesc){
   }
   var html='<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">'+sortBtn('date','日期')+sortBtn('amount','金额')+'</div>'
   html+='<div style="max-height:280px;overflow-y:auto;text-align:left;font-size:13px">'
-  html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-weight:500"><span>名称</span><span>金额</span><span>日期</span></div>'
+  html+='<div style="display:flex;padding:6px 0;border-bottom:1px solid #eee;font-weight:500"><span style="flex:1">名称</span><span>金额</span><span style="width:64px;text-align:center">状态</span><span style="width:74px;text-align:right">日期</span></div>'
   sorted.forEach(function(item){
-    html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f5">'
-    html+='<span>'+esc(item.name)+'</span>'
-    html+='<span style="color:'+(type==='loan'?'#ee4d2d':'#07c160')+'">'+money(item.amount)+'</span>'
-    html+='<span style="color:#999">'+item.date+'</span></div>'
+    var sc=(item.status==='已还'||item.status==='已到账')?'color:#999':'color:#07c160'
+    html+='<div style="display:flex;padding:6px 0;border-bottom:1px solid #f5f5f5;align-items:center">'
+    html+='<span style="flex:1">'+esc(item.name)+'</span>'
+    html+='<span style="'+(type==='loan'?'color:#ee4d2d':'color:#07c160')+'">'+money(item.amount)+'</span>'
+    html+='<span style="width:64px;text-align:center;font-size:11px;'+sc+'">'+(item.status||'')+'</span>'
+    html+='<span style="width:74px;text-align:right;color:#999">'+item.date+'</span></div>'
   })
   var total=sorted.reduce(function(s,p){return s+(Number(p.amount)||0)},0)
-  html+='<div style="display:flex;justify-content:space-between;padding:6px 0;font-weight:500"><span>合计</span><span>'+money(total)+'</span><span></span></div>'
+  html+='<div style="display:flex;padding:6px 0;font-weight:500"><span style="flex:1">合计</span><span>'+money(total)+'</span><span style="width:138px"></span></div>'
   html+='</div>'
   var d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10000;display:flex;align-items:center;justify-content:center'
   d.innerHTML='<div style="background:#fff;border-radius:12px;width:340px;max-width:92%;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.15)"><div style="font-size:15px;font-weight:500;margin-bottom:8px;text-align:center">'+esc(title)+'</div>'+html+'<div style="text-align:center;margin-top:10px"><button class="btn btn-cancel" onclick="this.closest(\'div[style*="fixed"]\').remove()" style="padding:8px 24px">关闭</button></div></div>'
