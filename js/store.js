@@ -51,8 +51,20 @@ var GH_CONFIG_KEY='github_sync_config',GH_PATH='data.json',GH_BRANCH='main'
 function getGithubConfig(){return storageGet(GH_CONFIG_KEY)||{token:'',owner:'',repo:''}}
 function setGithubConfig(c){storageSet(GH_CONFIG_KEY,c)}
 
-function b64DecodeUtf8(str){try{return decodeURIComponent(Array.from(atob(str)).map(function(c){return'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)}).join(''))}catch(e){return atob(str)}}
-function b64EncodeUtf8(str){try{return btoa(Array.from(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,function(m,p){return String.fromCharCode(parseInt(p,16))})).join(''))}catch(e){return btoa(str)}}
+function b64DecodeUtf8(str){
+  try{
+    var bytes=Uint8Array.from(atob(str),function(c){return c.charCodeAt(0)})
+    return new TextDecoder('utf-8').decode(bytes)
+  }catch(e){return atob(str)}
+}
+function b64EncodeUtf8(str){
+  try{
+    var bytes=new TextEncoder().encode(str)
+    var bin=''
+    for(var i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i])
+    return btoa(bin)
+  }catch(e){return btoa(unescape(encodeURIComponent(str)))}
+}
 
 // 读取 GitHub 上 data.json 的内容和 sha
 function githubRead(cb){
