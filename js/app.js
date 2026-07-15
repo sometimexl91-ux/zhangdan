@@ -159,7 +159,7 @@ function renderLoans(){
   loans.forEach(function(l){
     var c=enrich([l],todayStr())[0]
     var tag=(l.planMethod&&l.planMethod!=='lump')?l.planMethod==='equalInstallment'?'等额本息':'等额本金':''
-    h+='<div class="loan-row" onclick="navigate(\'#!/loanDetail?id='+l.id+'\')"><div class="lr-left"><span class="'+dirClass(l.direction)+'">'+dirText(l.direction)+'</span><span class="lr-name">'+esc(l.name||'未命名')+'</span>'+(tag?'<span class="plan-tag">'+tag+'</span>':'')+'</div><div class="lr-right"><span class="lr-amount">'+money(l.remaining,l.currency)+'</span><span class="lr-status '+statusClass(c.status)+'" oncontextmenu="event.preventDefault();showStatusEdit(\''+l.id+'\')">'+statusText(c.status)+'</span></div></div>'
+    h+='<div class="loan-row" onclick="navigate(\'#!/loanDetail?id='+l.id+'\')"><div class="lr-left"><span class="'+dirClass(l.direction)+'">'+dirText(l.direction)+'</span><span class="lr-name">'+esc(l.name||'未命名')+'</span>'+(tag?'<span class="plan-tag">'+tag+'</span>':'')+'</div><div class="lr-right"><span class="lr-amount">'+money(l.remaining,l.currency)+'</span><span class="lr-status '+statusClass(c.status)+'" onclick="event.stopPropagation();showStatusEdit(\''+l.id+'\')">'+statusText(c.status)+'</span></div></div>'
   })
   if(loans.length===0)h+='<div class="card"><div class="empty">暂无可记录的借贷</div></div>'
   h+='<div class="fab" onclick="navigate(\'#!/loanEdit\')">+</div>'
@@ -265,8 +265,8 @@ function renderLoanDetail(){
   var h='<div class="card"><div class="detail-header"><span class="'+dirClass(raw.direction)+'">'+dirText(raw.direction)+'</span><span class="detail-name">'+esc(raw.name)+'</span></div>'
   if(raw.contact)h+='<div class="detail-contact">'+esc(raw.contact)+'</div>'
   h+='<div class="stat-row3"><div class="stat-mini"><div class="mini-label">已还</div><div class="mini-val">'+money(c.totalRepaid)+'</div></div><div class="stat-mini"><div class="mini-label">剩余本金</div><div class="mini-val green">'+money(c.remaining)+'</div></div><div class="stat-mini"><div class="mini-label">应付利息</div><div class="mini-val">'+money(c.interest)+'</div></div></div>'
-  if(c.isOverdue)h+='<div class="alert red-alert" oncontextmenu="event.preventDefault();showStatusEdit(\''+raw.id+'\')">已逾期'+Math.abs(c.daysToDue)+'天，请尽快处理</div>'
-  else if(c.daysToDue!==null&&c.daysToDue>=0&&c.status!=='paid')h+='<div class="alert orange-alert" oncontextmenu="event.preventDefault();showStatusEdit(\''+raw.id+'\')">距下一期还有 '+c.daysToDue+' 天（'+c.effectiveDueDate+'）</div>'
+  if(c.isOverdue)h+='<div class="alert red-alert" onclick="showStatusEdit(\''+raw.id+'\')">已逾期'+Math.abs(c.daysToDue)+'天，请尽快处理</div>'
+  else if(c.daysToDue!==null&&c.daysToDue>=0&&c.status!=='paid')h+='<div class="alert orange-alert" onclick="showStatusEdit(\''+raw.id+'\')">距下一期还有 '+c.daysToDue+' 天（'+c.effectiveDueDate+'）</div>'
   h+='</div>'
 
   // 还款计划表
@@ -276,7 +276,7 @@ function renderLoanDetail(){
     h+='<div class="plan-table"><div class="plan-tr plan-th"><span class="plan-c">#</span><span class="plan-c">应还日</span><span class="plan-c">本金</span><span class="plan-c">利息</span><span class="plan-c">合计</span><span class="plan-c plan-act"></span></div>'
     plan.periods.forEach(function(p){
       var pc='plan-tr'+(p.status==='paid'?' plan-paid':'')+(p.isNext?' plan-next':'')
-      h+='<div class="'+pc+'"><span class="plan-c">#'+(p.index+1)+'</span><span class="plan-c">'+(p.dueDate||'')+'</span><span class="plan-c">'+money(p.principal)+'</span><span class="plan-c">'+money(p.interest)+'</span><span class="plan-c">'+money(p.total)+'</span><span class="plan-c plan-act"><span class="tag '+(p.status==='paid'?'tag-paid':'tag-coming')+'" oncontextmenu="event.preventDefault();showPeriodEdit(\''+raw.id+'\','+p.index+')">'+(p.status==='paid'?'已还':'待还')+'</span></span></div>'
+      h+='<div class="'+pc+'"><span class="plan-c">#'+(p.index+1)+'</span><span class="plan-c">'+(p.dueDate||'')+'</span><span class="plan-c">'+money(p.principal)+'</span><span class="plan-c">'+money(p.interest)+'</span><span class="plan-c">'+money(p.total)+'</span><span class="plan-c plan-act"><span class="tag '+(p.status==='paid'?'tag-paid':'tag-coming')+'" onclick="event.stopPropagation();showPeriodEdit(\''+raw.id+'\','+p.index+')">'+(p.status==='paid'?'已还':'待还')+'</span></span></div>'
     })
     h+='</div></div>'
   }else{
