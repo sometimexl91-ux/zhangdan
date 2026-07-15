@@ -60,6 +60,15 @@ function genPlan(loan,today){
         remaining-=principal
         periods.push({index:k-1,dueDate:k===n?due:periodDate(start,freq,k),principal:principal,interest:interest,total:principal+interest,paid:false,paidDate:null,status:'upcoming'})
       }
+    }else if(method==='interestFirst'){
+      let remaining=P
+      for(let k=1;k<=n;k++){
+        const interest=remaining*pr
+        const isLast=k===n
+        const principal=isLast?remaining:0
+        remaining-=principal
+        periods.push({index:k-1,dueDate:isLast?due:periodDate(start,freq,k),principal:principal,interest:interest,total:principal+interest,paid:false,paidDate:null,status:'upcoming'})
+      }
     }else{
       const pp=P/n
       let remaining=P
