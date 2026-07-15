@@ -276,7 +276,7 @@ function renderLoanDetail(){
     h+='<div class="plan-table"><div class="plan-tr plan-th"><span class="plan-c">#</span><span class="plan-c">应还日</span><span class="plan-c">本金</span><span class="plan-c">利息</span><span class="plan-c">合计</span><span class="plan-c plan-act"></span></div>'
     plan.periods.forEach(function(p){
       var pc='plan-tr'+(p.status==='paid'?' plan-paid':'')+(p.isNext?' plan-next':'')
-      h+='<div class="'+pc+'"><span class="plan-c">#'+(p.index+1)+'</span><span class="plan-c">'+(p.dueDate||'')+'</span><span class="plan-c">'+money(p.principal)+'</span><span class="plan-c">'+money(p.interest)+'</span><span class="plan-c">'+money(p.total)+'</span><span class="plan-c plan-act"><span class="tag '+(p.status==='paid'?'tag-paid':'tag-coming')+'" onclick="event.stopPropagation();showPeriodEdit(\''+raw.id+'\','+p.index+')">'+(p.status==='paid'?'已还':'待还')+'</span></span></div>'
+      h+='<div class="'+pc+'"><span class="plan-c">#'+(p.index+1)+'</span><span class="plan-c">'+(p.dueDate||'')+'</span><span class="plan-c">'+money(p.principal)+'</span><span class="plan-c">'+money(p.interest)+'</span><span class="plan-c">'+money(p.total)+'</span><span class="plan-c plan-act" onclick="showPeriodEdit(\''+raw.id+'\','+p.index+')"><span class="tag '+(p.status==='paid'?'tag-paid':'tag-coming')+'">'+(p.status==='paid'?'已还':'待还')+'</span></span></div>'
     })
     h+='</div></div>'
   }else{
