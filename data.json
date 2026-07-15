@@ -1,7 +1,7 @@
 {
   "app": "loan-web",
   "version": 1,
-  "exportedAt": "2026-07-15T13:54:44.873Z",
+  "exportedAt": "2026-07-15T14:24:13.977Z",
   "books": [
     {
       "id": "B_1784120588747_897",
@@ -52,7 +52,168 @@
       "note": "",
       "settled": false,
       "createdAt": 1784123083014,
-      "repayments": []
+      "repayments": [
+        {
+          "id": "R_1784125437631_760",
+          "amount": 399,
+          "date": "2026-07-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 15,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125435449_923",
+          "amount": 399,
+          "date": "2026-06-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 14,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125433428_636",
+          "amount": 399,
+          "date": "2026-05-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 13,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125431190_2",
+          "amount": 399,
+          "date": "2026-04-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 12,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125428354_151",
+          "amount": 399,
+          "date": "2026-03-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 11,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125425475_360",
+          "amount": 399,
+          "date": "2026-02-28",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 10,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125419153_720",
+          "amount": 399,
+          "date": "2026-01-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 9,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125416937_281",
+          "amount": 399,
+          "date": "2025-12-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 8,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125415149_635",
+          "amount": 399,
+          "date": "2025-11-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 7,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125413973_895",
+          "amount": 399,
+          "date": "2025-10-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 6,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125412404_408",
+          "amount": 399,
+          "date": "2025-09-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 5,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125410619_874",
+          "amount": 399,
+          "date": "2025-08-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 4,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125408842_262",
+          "amount": 399,
+          "date": "2025-07-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 3,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125398600_528",
+          "amount": 399,
+          "date": "2025-06-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 2,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125397377_475",
+          "amount": 399,
+          "date": "2025-05-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 1,
+          "principalPortion": 0,
+          "interestPortion": 399
+        },
+        {
+          "id": "R_1784125395416_934",
+          "amount": 399,
+          "date": "2025-04-30",
+          "method": "手动",
+          "note": "长按标记已还",
+          "planIndex": 0,
+          "principalPortion": 0,
+          "interestPortion": 399
+        }
+      ]
     }
   ]
 }
