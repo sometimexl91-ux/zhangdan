@@ -478,7 +478,7 @@ function showBreakdown(type,sortBy,sortDesc){
   var sortBtn=function(field,label){
     var active=sortBy===field?'background:#07c160;color:#fff;border-color:#07c160':''
     var arrow=sortBy===field?(sortDesc?' &#9660;':' &#9650;'):''
-    return '<span style="cursor:pointer;padding:3px 8px;border-radius:12px;font-size:11px;border:1px solid #ddd;'+active+'" onclick="this.closest(\'div[style]\').parentElement.remove();showBreakdown(\''+type+'\',\''+field+'\','+(sortBy===field?!sortDesc:'false')+')">'+label+arrow+'</span>'
+    return '<span style="cursor:pointer;padding:3px 8px;border-radius:12px;font-size:11px;border:1px solid #ddd;'+active+'" onclick="this.closest(\'div[style*="fixed"]\').remove();showBreakdown(\''+type+'\',\''+field+'\','+(sortBy===field?!sortDesc:'false')+')">'+label+arrow+'</span>'
   }
   var html='<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">'+sortBtn('date','日期')+sortBtn('amount','金额')+'</div>'
   html+='<div style="max-height:280px;overflow-y:auto;text-align:left;font-size:13px">'
@@ -493,7 +493,7 @@ function showBreakdown(type,sortBy,sortDesc){
   html+='<div style="display:flex;justify-content:space-between;padding:6px 0;font-weight:500"><span>合计</span><span>'+money(total)+'</span><span></span></div>'
   html+='</div>'
   var d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10000;display:flex;align-items:center;justify-content:center'
-  d.innerHTML='<div style="background:#fff;border-radius:12px;width:340px;max-width:92%;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.15)"><div style="font-size:15px;font-weight:500;margin-bottom:8px;text-align:center">'+esc(title)+'</div>'+html+'<div style="text-align:center;margin-top:10px"><button class="btn btn-cancel" onclick="this.closest(\'div[style]\').remove()" style="padding:8px 24px">关闭</button></div></div>'
+  d.innerHTML='<div style="background:#fff;border-radius:12px;width:340px;max-width:92%;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.15)"><div style="font-size:15px;font-weight:500;margin-bottom:8px;text-align:center">'+esc(title)+'</div>'+html+'<div style="text-align:center;margin-top:10px"><button class="btn btn-cancel" onclick="this.closest(\'div[style*="fixed"]\').remove()" style="padding:8px 24px">关闭</button></div></div>'
   document.body.appendChild(d)
 }
 
