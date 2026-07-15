@@ -17,6 +17,16 @@ function showModal(title,content,cb){
   d.querySelector('.btn-cancel').onclick=function(){d.remove();cb&&cb(false)}
   d.querySelector('.btn-confirm').onclick=function(){d.remove();cb&&cb(true)}
 }
+function showPrompt(title,placeholder,defaultValue,cb){
+  var d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10000;display:flex;align-items:center;justify-content:center'
+  d.innerHTML='<div style="background:#fff;border-radius:12px;width:300px;max-width:85%;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.15)"><div style="font-size:16px;font-weight:500;margin-bottom:12px;text-align:center">'+esc(title)+'</div><input id="_promptInput" value="'+esc(defaultValue||'')+'" placeholder="'+esc(placeholder||'')+'" style="width:100%;border:1px solid #e0e0e0;border-radius:8px;padding:10px 12px;font-size:16px;outline:none;box-sizing:border-box;margin-bottom:16px" autofocus/><div style="display:flex;gap:12px"><button class="btn btn-cancel" style="flex:1" id="_promptCancel">取消</button><button class="btn btn-confirm" style="flex:1" id="_promptOk">确定</button></div></div>'
+  document.body.appendChild(d)
+  var inp=d.querySelector('#_promptInput')
+  setTimeout(function(){if(inp){inp.focus();inp.select()}},300)
+  d.querySelector('#_promptCancel').onclick=function(){d.remove();cb&&cb(null)}
+  d.querySelector('#_promptOk').onclick=function(){d.remove();cb&&cb(inp?inp.value:null)}
+  inp.onkeydown=function(e){if(e.key==='Enter'){d.remove();cb&&cb(inp?inp.value:null)}}
+}
 
 /* ---- Toast style inject ---- */
 (function(){var s=document.createElement('style');s.textContent='.btn{padding:10px 0;border:none;border-radius:8px;font-size:14px;cursor:pointer}.btn-cancel{background:#f0f0f0;color:#333}.btn-confirm{background:#07c160;color:#fff}.btn-danger{background:#ee4d2d;color:#fff}.btn-blue{background:#07c160;color:#fff}';document.head.appendChild(s)})();
@@ -401,10 +411,10 @@ function renderBooks(){
   return h
 }
 function switchBook(id){setActiveBookId(id);render()}
-function renameBook(id,name){var n=prompt('输入新名称',name);if(n&&n.trim()){renameBook_(id,n.trim());render()}}
+function renameBook(id,name){showPrompt('修改账本名称','输入新名称',name,function(n){if(n&&n.trim()){renameBook_(id,n.trim());render()}})}
 function renameBook_(id,n){renameBook(id,n)}
 function deleteBookConfirm(id){showModal('确认删除','删除后该账本下的借款会转移到当前账本，确定？',function(ok){if(ok){var r=deleteBook(id);if(!r.ok)showToast(r.msg);else{showToast('已删除');render()}}})}
-function addNewBook(){var n=prompt('输入账本名称','新账本');if(n&&n.trim()){addBook(n.trim());render()}}
+function addNewBook(){showPrompt('新建账本','输入账本名称','新账本',function(n){if(n&&n.trim()){addBook(n.trim());render()}})}
 function bindBooks(){}
 
 /* ---- 8. 数据备份 ---- */
