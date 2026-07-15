@@ -110,7 +110,8 @@ textarea.f-input{resize:vertical;min-height:50px}
 .info-row:last-child{border-bottom:none}
 
 /* ---- Plan Table ---- */
-.plan-table{border:1px solid #eee;border-radius:8px;overflow:hidden;font-size:12px}
+.plan-table{border:1px solid #eee;border-radius:8px;overflow-x:auto;font-size:12px;-webkit-overflow-scrolling:touch}
+.plan-table-inner{min-width:460px}
 .plan-tr{display:grid;grid-template-columns:36px 70px 1fr 1fr 1fr 60px;padding:6px 4px;border-bottom:1px solid #f0f0f0;align-items:center}
 .plan-tr:last-child{border-bottom:none}
 .plan-th{background:#f8f8f8;font-weight:500;color:#888;font-size:11px}
