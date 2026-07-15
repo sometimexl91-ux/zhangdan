@@ -1,0 +1,14 @@
+{
+  "app": "loan-web",
+  "version": 1,
+  "exportedAt": "2026-07-15T13:04:17.734Z",
+  "books": [
+    {
+      "id": "B_1784120588747_897",
+      "name": "我的账本",
+      "createdAt": 1784120588747
+    }
+  ],
+  "activeBookId": "B_1784120588747_897",
+  "loans": []
+}
