@@ -431,14 +431,16 @@ function renderReminder(){
   h+='<div class="card"><div class="card-title red">已逾期 ('+overdue.length+')</div>'
   overdue.forEach(function(l){
     var c=enrich([l],todayStr())[0]
-    h+='<div class="remind-card remind-overdue" onclick="navigate(\'#!/loanDetail?id='+l.id+'\')"><div class="lr-left"><span class="'+dirClass(l.direction)+'">'+dirText(l.direction)+'</span><span class="lr-name">'+esc(l.name)+'</span></div><div class="lr-right"><span class="red">逾期 '+(c.daysToDue*-1)+' 天</span><span>'+money(c.remaining,l.currency)+'</span></div></div>'
+    var nextAmt=l.planMethod&&l.planMethod!=='lump'&&c.plan&&c.plan.periods?(c.plan.periods.find(function(p){return p.isNext})?.total||c.remaining):c.remaining
+    h+='<div class="remind-card remind-overdue" onclick="navigate(\'#!/loanDetail?id='+l.id+'\')"><div class="lr-left"><span class="'+dirClass(l.direction)+'">'+dirText(l.direction)+'</span><span class="lr-name">'+esc(l.name)+'</span></div><div class="lr-right"><span class="red">逾期 '+(c.daysToDue*-1)+' 天</span><span>'+money(nextAmt,l.currency)+'</span></div></div>'
   })
   if(overdue.length===0)h+='<div class="empty">暂无逾期</div>'
   h+='</div>'
   h+='<div class="card"><div class="card-title orange">临近还款 ('+near.length+')</div>'
   near.forEach(function(l){
     var c=enrich([l],todayStr())[0]
-    h+='<div class="remind-card remind-near" onclick="navigate(\'#!/loanDetail?id='+l.id+'\')"><div class="lr-left"><span class="'+dirClass(l.direction)+'">'+dirText(l.direction)+'</span><span class="lr-name">'+esc(l.name)+'</span></div><div class="lr-right"><span class="orange">剩 '+c.daysToDue+' 天</span><span>'+money(c.remaining,l.currency)+'</span></div></div>'
+    var nextAmt=l.planMethod&&l.planMethod!=='lump'&&c.plan&&c.plan.periods?(c.plan.periods.find(function(p){return p.isNext})?.total||c.remaining):c.remaining
+    h+='<div class="remind-card remind-near" onclick="navigate(\'#!/loanDetail?id='+l.id+'\')"><div class="lr-left"><span class="'+dirClass(l.direction)+'">'+dirText(l.direction)+'</span><span class="lr-name">'+esc(l.name)+'</span></div><div class="lr-right"><span class="orange">剩 '+c.daysToDue+' 天</span><span>'+money(nextAmt,l.currency)+'</span></div></div>'
   })
   if(near.length===0)h+='<div class="empty">暂无临近还款</div>'
   h+='</div>'
