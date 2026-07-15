@@ -1,7 +1,7 @@
 {
   "app": "loan-web",
   "version": 1,
-  "exportedAt": "2026-07-15T14:24:13.977Z",
+  "exportedAt": "2026-07-15T14:35:42.923Z",
   "books": [
     {
       "id": "B_1784120588747_897",
@@ -212,6 +212,86 @@
           "planIndex": 0,
           "principalPortion": 0,
           "interestPortion": 399
+        }
+      ]
+    },
+    {
+      "id": "L_1784125748576_746",
+      "bookId": "B_1784121882302_367",
+      "direction": "loan",
+      "name": "借呗",
+      "contact": "",
+      "principal": 49500,
+      "currency": "¥",
+      "rate": 5.4,
+      "interestType": "单利",
+      "planMethod": "equalInstallment",
+      "planFreq": "monthly",
+      "startDate": "2026-01-14",
+      "dueDate": "2027-01-14",
+      "note": "",
+      "settled": false,
+      "createdAt": 1784125748576,
+      "repayments": [
+        {
+          "id": "R_1784125748577_145",
+          "amount": 4347.75,
+          "date": "2026-02-14",
+          "method": "代扣",
+          "note": "自动填充（历史期次）",
+          "planIndex": 0,
+          "principalPortion": 4125,
+          "interestPortion": 222.75
+        },
+        {
+          "id": "R_1784125748577_456",
+          "amount": 4329.19,
+          "date": "2026-03-14",
+          "method": "代扣",
+          "note": "自动填充（历史期次）",
+          "planIndex": 1,
+          "principalPortion": 4125,
+          "interestPortion": 204.19
+        },
+        {
+          "id": "R_1784125748577_108",
+          "amount": 4310.63,
+          "date": "2026-04-14",
+          "method": "代扣",
+          "note": "自动填充（历史期次）",
+          "planIndex": 2,
+          "principalPortion": 4125,
+          "interestPortion": 185.63
+        },
+        {
+          "id": "R_1784125748577_243",
+          "amount": 4292.06,
+          "date": "2026-05-14",
+          "method": "代扣",
+          "note": "自动填充（历史期次）",
+          "planIndex": 3,
+          "principalPortion": 4125,
+          "interestPortion": 167.06
+        },
+        {
+          "id": "R_1784125748577_227",
+          "amount": 4273.5,
+          "date": "2026-06-14",
+          "method": "代扣",
+          "note": "自动填充（历史期次）",
+          "planIndex": 4,
+          "principalPortion": 4125,
+          "interestPortion": 148.5
+        },
+        {
+          "id": "R_1784125748577_976",
+          "amount": 4254.94,
+          "date": "2026-07-14",
+          "method": "代扣",
+          "note": "自动填充（历史期次）",
+          "planIndex": 5,
+          "principalPortion": 4125,
+          "interestPortion": 129.94
         }
       ]
     }
