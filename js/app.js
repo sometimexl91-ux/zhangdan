@@ -213,7 +213,7 @@ function renderLoanEdit(){
   h+='<div class="form-group"><label class="chk-label"><input type="checkbox" id="f_settled" '+(f.settled?'checked':'')+'> 已结清（标记为已还清，不再显示逾期）</label></div>'
   h+='</div><div id="inf" style="display:'+(dir==='income'?'block':'none')+'">'
   h+='<div class="form-group"><label>收入名称 *</label><input class="f-input" id="f_inc_name" value="'+esc(f.name)+'" placeholder="如：工资"/></div>'
-  h+='<div class="form-group"><label>收入类型</label><select class="f-input" id="f_incomeType"><option value="工资" '+(f.incomeType==='工资'?'selected':'')+'>工资</option><option value="投资" '+(f.incomeType==='投资'?'selected':'')+'>投资</option><option value="其他" '+(f.incomeType==='其他'?'selected':'')+'>其他</option></select></div>'
+  h+='<div class="form-group"><label>收入类型</label><select class="f-input" id="f_inc_incomeType"><option value="工资" '+(f.incomeType==='工资'?'selected':'')+'>工资</option><option value="投资" '+(f.incomeType==='投资'?'selected':'')+'>投资</option><option value="其他" '+(f.incomeType==='其他'?'selected':'')+'>其他</option></select></div>'
   h+='<div class="form-group"><label>金额 *</label><input class="f-input" id="f_inc_principal" value="'+esc(f.principal)+'" placeholder="0" type="number"/></div>'
   h+='<div class="form-group"><label>到账日期 *</label><input class="f-input" id="f_inc_dueDate" value="'+esc(f.dueDate)+'" type="date"/></div>'
   h+='<div class="form-group"><label class="chk-label"><input type="checkbox" id="f_inc_arrived" '+(f.arrived?'checked':'')+'> 已到账</label></div>'
